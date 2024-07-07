@@ -229,7 +229,7 @@ local function getGMTTime()
 end
 
 -- Function do check if a monitor is connected and init the Pixelbox lib
-local function checkDisplay(libFileName)
+local function checkDisplay()
     local display = nil
     local sides = {"front", "back", "left", "right", "top", "bottom"}
     for i = 1, #sides do
@@ -247,7 +247,7 @@ local function checkDisplay(libFileName)
         display = term
     end
     display.setBackgroundColor(backgroundColor)
-    local box = require(libFileName).new(term.current())
+    local box = require("pixelbox_lite").new(term.current())
     return display, box
 end
 
@@ -519,7 +519,7 @@ local function main()
     -- Run the graph in an infinite loop
     while true do
         -- Get the display
-        local display, box = checkDisplay(libFileName)
+        local display, box = checkDisplay()
 
         -- Download and Load stock data
         if getStockData(stockSymbol, region, interval, range) == 1 then
