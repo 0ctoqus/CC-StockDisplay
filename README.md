@@ -6,7 +6,7 @@ It currently fetches data from the Yahoo Finance API and displays it.
 ## Installation
 The client can be installed by running the following command:
 ```shell
-wget run https://raw.githubusercontent.com/0ctoqus/CC-StockDisplay/main/StockDisplay.lua
+wget https://raw.githubusercontent.com/0ctoqus/CC-StockDisplay/main/StockDisplay.lua
 ```
 
 ## Customization
@@ -16,7 +16,9 @@ You can set the different stocks options to display as well as the colors at the
 ```lua
 -- Define a table of stock symbols and regions
 -- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
-local stocks = {{"NQ=F", "US"}, {"LQQ.PA", "EU"}}
+-- Define a table of stock symbols and regions
+-- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
+local stocks = {{"AAPL","US"}, {"GOOGL","US"}, {"AMZN","US"}, {"FB","US"}, {"MSFT","US"}}
 ```
 
 #### Color settings

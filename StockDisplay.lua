@@ -229,7 +229,7 @@ local function getGMTTime()
 end
 
 -- Function do check if a monitor is connected and init the Pixelbox lib
-local function checkDisplay()
+local function checkDisplay(libFileName)
     local display = nil
     local sides = {"front", "back", "left", "right", "top", "bottom"}
     for i = 1, #sides do
@@ -247,7 +247,7 @@ local function checkDisplay()
         display = term
     end
     display.setBackgroundColor(backgroundColor)
-    local box = require("pixelbox_lite").new(term.current())
+    local box = require(libFileName).new(term.current())
     return display, box
 end
 
