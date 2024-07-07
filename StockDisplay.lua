@@ -476,10 +476,14 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
     print(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
     -- display.write(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
 
-    -- Displat second stocks infos
+    -- Display second stocks infos
     first_price = math.floor(first_price)
     local stockCurrency = converCurrencySymbol(decoded["chart"]["result"][1]["meta"]["currency"])
     local previousClose = tonumber(decoded["chart"]["result"][1]["meta"]["previousClose"])
+    -- If previous close in not present because of chosen params, display % on previous candle
+    if not previousClose then
+        previousClose = tonumber(close_values[#close_values - 1])
+    end
     local pcChange = tonumber(string.format("%.2f", first_price / previousClose * 100 - 100))
     if pcChange > 0 then
         pcChange = "+" .. pcChange .. "%"
