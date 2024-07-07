@@ -38,7 +38,7 @@ local stocks = {
     {"AAPL","US"},
     {"GOOGL","US"},
     {"AMZN","US"},
-    {"FB","US"},
+    {"META","US"},
     {"MSFT","US"},
     {"TSLA","US"},
     {"BABA","US"},
