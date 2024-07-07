@@ -1,8 +1,8 @@
 # CC:StockDisplay
 Display real world stock values on a Computecraft inside Minecraft.
 It currently fetches data from the Yahoo Finance API and displays it.
-![preview](.README/display.png)
-
+![preview](.README/showcase.png)
+![terminal_preview](.README/terminal.png)
 ## Installation
 The client can be installed by running the following command:
 
@@ -20,8 +20,6 @@ You can set the different stocks options to display as well as the colors at the
 
 #### Stocks settings
 ```lua
--- Define a table of stock symbols and regions
--- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
 -- Define a table of stock symbols and regions
 -- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
 local stocks = {{"AAPL","US"}, {"GOOGL","US"}, {"AMZN","US"}, {"FB","US"}, {"MSFT","US"}}
