@@ -34,7 +34,17 @@ local backgroundColor = colors.black
 
 -- Define a table of stock symbols and regions
 -- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
-local stocks = {{"NQ=F", "US"}, {"LQQ.PA", "EU"}}
+local stocks = {
+    {"AAPL","US"},
+    {"GOOGL","US"},
+    {"AMZN","US"},
+    {"FB","US"},
+    {"MSFT","US"},
+    {"TSLA","US"},
+    {"BABA","US"},
+    {"NQ=F", "US"},
+    {"LQQ.PA", "EU"},
+}
 
 -- Define a table of intervals
 local intervals = {{"1m", nil}, {"2m", nil}, {"5m", nil}, {"15m", nil}, {"30m", nil}, {"60m", nil}, {"90m", nil},
