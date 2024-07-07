@@ -153,17 +153,17 @@ local function selectStock(fileName)
         -- Prompt the user to select a stock
         local selectedStock = selectOption(stocks, "stock")
         printDebug("Info: Selected " .. selectedStock[1] .. ":" .. selectedStock[2])
-        os.sleep(1)
+        os.sleep(0.2)
 
         -- Prompt the user to select an interval
         local selectedInterval = selectOption(intervals, "interval")
         printDebug("Info: Selected " .. selectedInterval[1])
-        os.sleep(1)
+        os.sleep(0.2)
 
         -- Prompt the user to select a range
         local selectedRange = selectOption(ranges, "range")
         printDebug("Info: Selected " .. selectedRange[1])
-        os.sleep(1)
+        os.sleep(0.2)
 
         -- Save the selected stock, interval, and range to a file
         local file = fs.open(fileName, "w")
@@ -266,14 +266,20 @@ local function loadStockData(file_name)
     local file = fs.open(file_name, "r")
     if not file then
         printDebug("Error: Can't open file")
-        os.exit()
+        return nil
     end
 
     local decoded, pos, err = textutils.unserializeJSON(file.readAll(), {
         parse_null = true
     })
-    -- We remove nill values return by the API
 
+    -- We check that we have close values
+    if not decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"] then
+        printDebug("Error: Can't find close values, parameters selection must be bad")
+        return nil
+    end
+    
+    -- We remove nill values return by the API
     decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"] = removeNilValues(
         decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"])
     file.close()
@@ -476,11 +482,10 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
     print(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
     -- display.write(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
 
-    -- Display second stocks infos
+    -- Displat second stocks infos
     first_price = math.floor(first_price)
     local stockCurrency = converCurrencySymbol(decoded["chart"]["result"][1]["meta"]["currency"])
     local previousClose = tonumber(decoded["chart"]["result"][1]["meta"]["previousClose"])
-    -- If previous close in not present because of chosen params, display % on previous candle
     if not previousClose then
         previousClose = tonumber(close_values[#close_values - 1])
     end
@@ -530,6 +535,9 @@ local function main()
             return
         end
         local decoded = loadStockData("stock_data.json")
+        if not decoded then
+            return 1
+        end
 
         -- Set the max number od siplay points
         local numDisplayPoints = box.width
