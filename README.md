@@ -41,7 +41,7 @@ local backgroundColor = colors.black
 ## How it works
 1. Automatically download the display lib from Github, allowing us to have an improved resolution for display, but comes with some drawbacks.
 2. Registers the script to startup, so it will start automatically with the computer (and so also on world load).
-3. Checks if you already have a stock selected to display. If not, it will prompt you to select one stock with an interval and range. It will then save it to a config file for later use. If you want to change the selection, you can do it by changing the local stocks array and deleting if it exists the selected\_stock\_config.json.
+3. Checks if you already have a stock selected to display. If not, it will prompt you to select one stock with an interval and range. It will then save it to a config file for later use. If you want to change the selection, you can do it by changing the local stocks array and deleting the config file selected\_stock\_config.json it it exist.
 4. Fetches the current GMT real world time from the internet to later calculate market open and close.
 5. Sets the display to an external monitor if possible.
 6. Downloads and loads the stock data (in this step, we also remove empty values by discarding them).

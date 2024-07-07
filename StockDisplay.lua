@@ -46,13 +46,18 @@ local stocks = {
     {"LQQ.PA", "EU"},
 }
 
--- Define a table of intervals
-local intervals = {{"1m", nil}, {"2m", nil}, {"5m", nil}, {"15m", nil}, {"30m", nil}, {"60m", nil}, {"90m", nil},
-                   {"1h", nil}, {"1d", nil}, {"5d", nil}, {"1wk", nil}, {"1mo", nil}, {"3mo", nil}}
-
--- Define a table of ranges
-local ranges = {{"1d", nil}, {"5d", nil}, {"1mo", nil}, {"3mo", nil}, {"6mo", nil}, {"1y", nil}, {"2y", nil},
-                {"5y", nil}, {"10y", nil}, {"ytd", nil}, {"max", nil}}
+-- Max screen width is 328
+-- Unused interval and ranges {"60m", "1mo"},{"90m", "1mo"},{"5d", "5y"},{"1wk", "10y"},,{"3mo", "max"}
+local intervalsAndRanges = {
+    {"1m", "5d"},
+    {"2m", "5d"},
+    {"5m", "5d"},
+    {"15m", "5d"},
+    {"30m", "1mo"},
+    {"1h", "1mo"},
+    {"1d", "2y"},
+    {"1mo", "max"},
+}
 
 -- Custom print function that can be used to debug and always print to Term
 local function printDebug(message)
@@ -134,7 +139,7 @@ local function selectStock(fileName)
     local function selectOption(options, currentSelectionText)
         printDebug("Info: Select an option for the " .. currentSelectionText)
         for i, option in ipairs(options) do
-            printDebug(i .. ". " .. option[1])
+            printDebug(i .. ". " .. option[1] .. ":" .. option[2])
         end
         printDebug("Info: Enter the number you want to select.")
 
@@ -155,19 +160,14 @@ local function selectStock(fileName)
         printDebug("Info: Selected " .. selectedStock[1] .. ":" .. selectedStock[2])
         os.sleep(0.2)
 
-        -- Prompt the user to select an interval
-        local selectedInterval = selectOption(intervals, "interval")
-        printDebug("Info: Selected " .. selectedInterval[1])
-        os.sleep(0.2)
-
-        -- Prompt the user to select a range
-        local selectedRange = selectOption(ranges, "range")
-        printDebug("Info: Selected " .. selectedRange[1])
+        -- Prompt the user to select a stock
+        local selectedIntervalAndRange = selectOption(intervalsAndRanges, "interval and range")
+        printDebug("Info: Selected " .. selectedIntervalAndRange[1] .. ":" .. selectedIntervalAndRange[2])
         os.sleep(0.2)
 
         -- Save the selected stock, interval, and range to a file
         local file = fs.open(fileName, "w")
-        local data = {selectedStock, selectedInterval, selectedRange}
+        local data = {selectedStock, selectedIntervalAndRange}
         file.write(textutils.serializeJSON(data))
         file.close()
         printDebug("Info: Selected stock, interval, and range saved")
@@ -190,9 +190,8 @@ local function loadSelectedStockParameters(fileName)
         local stockSymbol = selectedData[1][1]
         local region = selectedData[1][2]
         local interval = selectedData[2][1]
-        local range = selectedData[3][1]
-        printDebug("Info: Parameters loaded " .. stockSymbol .. " (" .. region .. ", " .. interval .. ", " .. range ..
-                       ")")
+        local range = selectedData[2][2]
+        printDebug("Info: Parameters loaded " .. stockSymbol .. " (" .. region .. ", " .. interval .. ", " .. range ..")")
         return stockSymbol, region, interval, range
     else
         printDebug("Error: Selected stock file not found.")
