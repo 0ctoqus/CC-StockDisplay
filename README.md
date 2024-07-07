@@ -17,6 +17,8 @@ Then run it
 ./StockDisplay.lua
 ```
 
+Or, you can get the script from [PineStore website](https://pinestore.cc/projects/103/stock-display)
+
 ## Customization
 You can set the different stocks options to display as well as the colors at the start of the StockDisplay.lua file.
 
