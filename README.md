@@ -22,7 +22,7 @@ You can set the different stocks options to display as well as the colors at the
 ```lua
 -- Define a table of stock symbols and regions
 -- You can look in the URL of quotes selected from https://finance.yahoo.com/lookup to add them here
-local stocks = {{"AAPL","US"}, {"GOOGL","US"}, {"AMZN","US"}, {"FB","US"}, {"MSFT","US"}}
+local stocks = {{"AAPL","US"}, {"GOOGL","US"}, {"AMZN","US"}, {"META","US"}, {"MSFT","US"}}
 ```
 
 #### Color settings
