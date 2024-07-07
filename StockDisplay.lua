@@ -508,6 +508,7 @@ local function main()
     term.setCursorPos(1, 1)
     printDebug("Running CC:StockDisplay by Octopus")
     printDebug("To stop execution hold CTRL+T")
+    printDebug("Computer ID: " .. os.getComputerID())
 
     -- Load the PixelBox class using the loadPixelBoxLite() function
     local libFileName = "pixelbox_lite.lua"
