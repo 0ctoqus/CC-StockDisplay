@@ -6,7 +6,7 @@ It currently fetches data from the Yahoo Finance API and displays it.
 ## Installation
 The client can be installed by running the following command:
 ```shell
-wget run ...
+wget run https://raw.githubusercontent.com/0ctoqus/CC-StockDisplay/main/StockDisplay.lua
 ```
 
 ## Customization
