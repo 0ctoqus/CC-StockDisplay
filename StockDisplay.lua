@@ -72,7 +72,7 @@ local function printDebug(message)
     term.redirect(oldOutput)
 end
 
--- Function to load the pixelbox_lite.lua library
+-- Function to load the pixelbox_lite.lua library from https://github.com/9551-Dev/pixelbox_lite
 local function loadPixelBoxLiteLib(libFileName)
     -- Check if the pixelbox_lite.lua file already exists
     if not fs.exists(libFileName) then
@@ -229,7 +229,7 @@ local function getGMTTime()
 end
 
 -- Function do check if a monitor is connected and init the Pixelbox lib
-local function checkDisplay(libFileName)
+local function checkDisplay()
     local display = nil
     local sides = {"front", "back", "left", "right", "top", "bottom"}
     for i = 1, #sides do
@@ -247,7 +247,7 @@ local function checkDisplay(libFileName)
         display = term
     end
     display.setBackgroundColor(backgroundColor)
-    local box = require(libFileName).new(term.current())
+    local box = require("pixelbox_lite").new(term.current())
     return display, box
 end
 
