@@ -2,7 +2,9 @@
 Display real world stock values on a Computecraft inside Minecraft.
 It currently fetches data from the Yahoo Finance API and displays it.
 ![preview](.README/showcase.png)
+
 ![preview](.README/terminal.png)
+
 ## Installation
 The client can be installed by running the following command:
 
