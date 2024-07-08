@@ -404,35 +404,25 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
         return XScale, YScale, minPrice, maxPrice
     end
 
-    -- Draw lines recursively, starting from the latest close value and working backwards until we reach the last one that can fit on the screen.
-    -- 1. By starting from the latest close value, we ensure that all lines fit within the screen boundaries, avoiding any potential overlapping or off-screen rendering issues.
-    -- 2. Then by display first value starting to the left, we handle the case when two "pixels" could overlap, in this case we display the most recent one.
-    function drawLineRecursively(i, box, close_values, numPoints, skipped_price, maxPrice, XScale, YScale, previousOpen)
-        if i > 0 and i >= #close_values - numPoints - skipped_price then
-            local current_step = numPoints - (tonumber(#close_values) - i) + skipped_price
-            -- local open = tonumber(open_values[i])
-            local close = tonumber(close_values[i])
-            local draw = false
-            if close ~= nil and close ~= textutils.json_null then
-                if previousOpen ~= nil and previousOpen ~= textutils.json_null then
-                    local x1 = math.floor(current_step * XScale)
-                    local x2 = math.floor(current_step * XScale)
-                    local y1 = math.floor((maxPrice - previousOpen) * YScale) + 4 -- We adjust the Y value so we don't clip the price display, normaly should be 3 be 4 seems to prevent clipping best
-                    local y2 = math.floor((maxPrice - close) * YScale) + 4
-                    local color = y1 < y2 and buyColor or sellColor
-                    drawLineRecursively(i - 1, box, close_values, numPoints, skipped_price, maxPrice, XScale, YScale,
-                        close)
-                    drawLine(box, x1, y1, x2, y2, color)
-                else
-                    drawLineRecursively(i, box, close_values, numPoints, skipped_price, maxPrice, XScale, YScale, close)
-                end
-            else
-                skipped_price = skipped_price + 1
-                drawLineRecursively(i - 1, box, close_values, numPoints, skipped_price, maxPrice, XScale, YScale,
-                    previousOpen)
-            end
-            return close, i
+    function drawDataPoints(box, close_values, numPoints, maxPrice, XScale, YScale)
+        local starting_pos = #close_values + 1 - numPoints
+        local previousClose = close_values[starting_pos - 1]
+        local close = nil
+        local current_step = 1
+
+        while current_step + starting_pos < #close_values + 1 do
+            close = tonumber(close_values[current_step + starting_pos])
+            local x1 = math.floor(current_step * XScale)
+            local x2 = math.floor(current_step * XScale)
+            local y1 = math.floor((maxPrice - previousClose) * YScale) + 4 -- We adjust the Y value so we don't clip the price display, normaly should be 3 be 4 seems to prevent clipping best
+            local y2 = math.floor((maxPrice - close) * YScale) + 4
+            local color = y1 > y2 and buyColor or sellColor
+            drawLine(box, x1, y1, x2, y2, color)
+            
+            previousClose = close
+            current_step = current_step + 1
         end
+        return close
     end
 
     -- Determine of market is open or not
@@ -459,14 +449,11 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
     -- Get the display scaling depending on the number of data points and price
     local XScale, YScale, minPrice, maxPrice = getMinMaxNScale(display, box, decoded, numPoints)
 
-    -- Draw the graph
-    local x1, y1, first_price, first_key, previousOpen = nil
     local close_values = decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"]
-    local skipped_price = 0
-    local i = #close_values
+
+    -- Draw the graph
     box:clear()
-    first_price, first_key = drawLineRecursively(#close_values, box, close_values, numPoints, skipped_price, maxPrice,
-        XScale, YScale, previousOpen) -- Start the recursion
+    local first_price = drawDataPoints(box, close_values, numPoints, maxPrice, XScale, YScale) -- Start drawing
     box:render()
 
     -- Reset cursor and background to displat top infos
@@ -476,13 +463,13 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
     -- Display first stock infos
     local marketStatus = isMarketOpen(decoded, gmtTimestamp)
     local stockSymbol = decoded["chart"]["result"][1]["meta"]["symbol"]
-    local stockLastTimestamp = os.date("%d/%m %H:%M", decoded["chart"]["result"][1]["timestamp"][first_key])
+
+    local lastTimestampIndex = #decoded["chart"]["result"][1]["timestamp"] + 1
+    local stockLastTimestamp = os.date("%d/%m %H:%M", decoded["chart"]["result"][1]["timestamp"][lastTimestampIndex])
     display.setTextColor(defaultTextColor)
     print(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
-    -- display.write(marketStatus .. stockSymbol .. " " .. interval .. " " .. stockLastTimestamp .. " ")
 
     -- Displat second stocks infos
-    first_price = math.floor(first_price)
     local stockCurrency = converCurrencySymbol(decoded["chart"]["result"][1]["meta"]["currency"])
     local previousClose = tonumber(decoded["chart"]["result"][1]["meta"]["previousClose"])
     if not previousClose then
@@ -496,8 +483,7 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
         pcChange = pcChange .. "%"
         display.setTextColour(sellColor)
     end
-    print(first_price .. stockCurrency .. " " .. pcChange)
-    -- display.write(first_price .. stockCurrency .. " " .. pcChange)    
+    print(string.format("%.2f",first_price) .. stockCurrency .. " " .. pcChange)
 end
 
 -- Main function
