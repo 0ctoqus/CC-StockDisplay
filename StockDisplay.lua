@@ -252,14 +252,16 @@ end
 
 -- Function to load stock data from a file
 local function loadStockData(file_name)
-    local function removeNilValues(arr)
-        local filtered = {}
-        for i = 1, #arr do
-            if arr[i] ~= textutils.json_null then
-                filtered[#filtered + 1] = arr[i]
+    local function removeNilValues(close_values, timestamp_values)
+        local filtered_close_values = {}
+        local filtered_timestamp_values = {}
+        for i = 1, #close_values do
+            if close_values[i] ~= textutils.json_null then
+                filtered_close_values[#filtered_close_values + 1] = close_values[i]
+                filtered_timestamp_values[#filtered_timestamp_values + 1] = timestamp_values[i]
             end
         end
-        return filtered
+        return filtered_close_values, filtered_timestamp_values
     end
 
     local file = fs.open(file_name, "r")
@@ -279,8 +281,9 @@ local function loadStockData(file_name)
     end
     
     -- We remove nill values return by the API
-    decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"] = removeNilValues(
-        decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"])
+    local close_values = decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"]
+    local timestamp_values = decoded["chart"]["result"][1]["timestamp"]
+    decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"], decoded["chart"]["result"][1]["timestamp"] = removeNilValues(close_values, timestamp_values)
     file.close()
     return decoded
 end
@@ -404,7 +407,7 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
         return XScale, YScale, minPrice, maxPrice
     end
 
-    function drawDataPoints(box, close_values, numPoints, maxPrice, XScale, YScale)
+    local function drawDataPoints(box, close_values, numPoints, maxPrice, XScale, YScale)
         local starting_pos = #close_values + 1 - numPoints
         local previousClose = close_values[starting_pos - 1]
         local close = nil
