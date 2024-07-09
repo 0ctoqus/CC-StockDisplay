@@ -4,10 +4,10 @@ By leveraging the Yahoo Finance API, this app fetches and displays current stock
 
 <table style="border: none;">
   <tr>
-    <td style="border: none; height: 400px;">
+    <td>
       <img src=".README/showcase.png" alt="First Screenshot">
     </td>
-    <td style="border: none; height: 400px;">
+    <td>
       <img src=".README/terminal_screenshot.png" alt="Second Screenshot">
     </td>
   </tr>
