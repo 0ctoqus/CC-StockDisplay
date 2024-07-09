@@ -77,8 +77,8 @@ local function printDebug(message)
     term.redirect(oldOutput)
 end
 
--- Function to load the pixelbox_lite.lua library from https://github.com/9551-Dev/pixelbox_lite
-local function loadPixelBoxLiteLib(libFileName)
+-- Function to download the pixelbox_lite.lua library from https://github.com/9551-Dev/pixelbox_lite
+local function downloadPixelBoxLiteLib(libFileName)
     -- Check if the pixelbox_lite.lua file already exists
     if not fs.exists(libFileName) then
         -- Download the pixelbox_lite.lua file using http.get()
@@ -91,14 +91,12 @@ local function loadPixelBoxLiteLib(libFileName)
             printDebug("Info: Downloaded pixelbox_lite.lua")
         else
             printDebug("Error: Failed to download " .. libFileName)
-            return nil
+            return 1
         end
     else
         printDebug("Info: Lib " .. libFileName .. " already exists")
     end
-    -- Load the pixelbox_lite.lua library
-    dofile(libFileName)
-    return PixelBox
+    return 0
 end
 
 local function registerStartup(scriptName)
@@ -228,7 +226,7 @@ local function getGMTTime()
 end
 
 -- Function do check if a monitor is connected and init the Pixelbox lib
-local function checkDisplay()
+local function checkDisplay(libName)
     local display = nil
     local sides = {"front", "back", "left", "right", "top", "bottom"}
     for i = 1, #sides do
@@ -246,7 +244,7 @@ local function checkDisplay()
         display = term
     end
     display.setBackgroundColor(backgroundColor)
-    local box = require("pixelbox_lite").new(term.current())
+    local box = require(libName).new(term.current())
     return display, box
 end
 
@@ -407,6 +405,7 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
         return XScale, YScale, minPrice, maxPrice
     end
 
+    -- Function to draw each price data point as vertical lines
     local function drawDataPoints(box, close_values, numPoints, maxPrice, XScale, YScale)
         local starting_pos = #close_values + 1 - numPoints
         local previousClose = close_values[starting_pos - 1]
@@ -417,7 +416,7 @@ local function drawGraph(display, box, decoded, numPoints, interval, gmtTimestam
             close = tonumber(close_values[current_step + starting_pos])
             local x1 = math.floor(current_step * XScale)
             local x2 = math.floor(current_step * XScale)
-            local y1 = math.floor((maxPrice - previousClose) * YScale) + 4 -- We adjust the Y value so we don't clip the price display, normaly should be 3 be 4 seems to prevent clipping best
+            local y1 = math.floor((maxPrice - previousClose) * YScale) + 4 -- We adjust the Y value so we don't clip the price display
             local y2 = math.floor((maxPrice - close) * YScale) + 4
             local color = y1 > y2 and buyColor or sellColor
             drawLine(box, x1, y1, x2, y2, color)
@@ -498,9 +497,8 @@ local function main()
     printDebug("To stop execution hold CTRL+T")
     printDebug("Computer ID: " .. os.getComputerID())
 
-    -- Load the PixelBox class using the loadPixelBoxLite() function
-    local libFileName = "pixelbox_lite.lua"
-    local PixelBox = loadPixelBoxLiteLib(libFileName)
+    -- Download the PixelBox lib if it does not exist for improved display resolution 
+    downloadPixelBoxLiteLib("pixelbox_lite.lua")
 
     -- Set script to autoload on computer start
     registerStartup()
@@ -508,7 +506,8 @@ local function main()
     -- If it doesn't exist, prompt the user to select a stock
     local configFileName = "selected_stock_config.json"
     selectStock(configFileName)
-    -- If it does exist, load the selected stock from the file
+
+    -- Load the selected stock from the file
     local stockSymbol, region, interval, range = loadSelectedStockParameters(configFileName)
 
     -- Get the current gmt timestamp
@@ -517,7 +516,7 @@ local function main()
     -- Run the graph in an infinite loop
     while true do
         -- Get the display
-        local display, box = checkDisplay()
+        local display, box = checkDisplay("pixelbox_lite")
 
         -- Download and Load stock data
         if getStockData(stockSymbol, region, interval, range) == 1 then
@@ -528,12 +527,10 @@ local function main()
             return 1
         end
 
-        -- Set the max number od siplay points
+        -- Set the max number of display points
         local numDisplayPoints = box.width
         local numDataPoints = #decoded["chart"]["result"][1]["indicators"]["quote"][1]["close"]
-        if numDisplayPoints > numDataPoints then
-            numDisplayPoints = numDataPoints
-        end
+        if numDisplayPoints > numDataPoints then numDisplayPoints = numDataPoints end
 
         -- Draw the graph
         drawGraph(display, box, decoded, numDisplayPoints, interval, gmtTimestamp)
