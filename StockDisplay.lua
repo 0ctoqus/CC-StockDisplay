@@ -198,31 +198,8 @@ end
 
 -- Function to download the current time in GMT format from the WorldTimeAPI
 local function getGMTTime()
-    local url = "http://worldtimeapi.org/api/timezone/GMT"
-
-    printDebug("Info: Getting current GMT time from internet")
-    -- Make the HTTP request
-    local response = http.get(url)
-
-    -- Read the response
-    if response then
-        local data = response.readAll()
-        response.close()
-        -- Parse the JSON response
-        local decoded, pos, err = textutils.unserializeJSON(data)
-        -- Retrieve the Unix timestamp
-        if decoded and decoded["unixtime"] then
-            local timestamp = decoded["unixtime"]
-            printDebug("Info: Retrieved current GMT time successful")
-            return timestamp
-        elseif not decoded then
-            printDebug("Error: Failed to parse JSON response")
-        else
-            printDebug("Error: No unixtime data found in response")
-        end
-    else
-        printDebug("Error: Failed to get current GMT time")
-    end
+    printDebug("Info: Retrieved current GMT time successful")
+    return os.time(os.date("*t"))
 end
 
 -- Function do check if a monitor is connected and init the Pixelbox lib
